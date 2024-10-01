@@ -71,7 +71,7 @@ function imageToFractal(image, count) {
 
     // 平均値で塗る
     for (const block of blockList) {
-        drawAverage(imageData, block, isStroke, isFill);
+        drawBlock(imageData, block, isStroke, isFill);
     }
 
     if (isStroke) {
@@ -165,7 +165,7 @@ function calcAverage(imageData, block, originalPixelCount) {
     block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
 }
 
-function drawAverage(imageData, block, isStroke, isFill) {
+function drawBlock(imageData, block, isStroke, isFill) {
     const data = imageData.data;
     const imageWidth = imageData.width;
     let startX = block.startX;

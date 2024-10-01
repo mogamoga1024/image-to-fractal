@@ -39,9 +39,9 @@ function imageToFractal(image, count) {
     };
 
     for (let i = 0; i < count; i++) {
+        let roughBlockIndex = 0;
         if (blockList.length > 0) {
-            // もっとも粗いブロックを探す
-            let roughBlockIndex = 0;
+            // 粗いブロックを探す
             roughBlock = blockList[0];
             for (let i = 0; i < blockList.length; i++) {
                 const block = blockList[i];
@@ -50,15 +50,19 @@ function imageToFractal(image, count) {
                     roughBlock = block;
                 }
             }
-            blockList.splice(roughBlockIndex, 1);
         }
         
-        // 分割する
+        // 粗いブロックを分割する
         const quarterBlockList = quarterSplit(roughBlock);
         if (quarterBlockList.length === 0) {
             break;
         }
+
+        if (blockList.length > 0) {
+            blockList.splice(roughBlockIndex, 1);
+        }
         blockList = blockList.concat(quarterBlockList);
+        
         // 平均値などを求める
         for (const block of quarterBlockList) {
             calcAverage(imageData, block, originalPixelCount);
@@ -70,13 +74,14 @@ function imageToFractal(image, count) {
         drawAverage(imageData, block, isStroke, isFill);
     }
 
-    // 下と右に線を引く
+    // 下に線を引く
     for (let x = 0; x < imageData.width; x++) {
         const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
         imageData.data[i + 0] = 0;
         imageData.data[i + 1] = 0;
         imageData.data[i + 2] = 0;
     }
+    // 右に線を引く
     for (let y = 0; y < imageData.height; y++) {
         const i = (imageData.width - 1) * 4 + (imageData.width * 4) * y;
         imageData.data[i + 0] = 0;

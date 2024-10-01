@@ -10,15 +10,19 @@ image.onload = () => {
     main();
 };
 
+let count = 150;
+let isStroke = true;
+let isFill = true;
+
 function main() {
-    const result = imageToFractal(image);
+    const result = imageToFractal(image, count);
 
     resultCanvas.width = result.width;
     resultCanvas.height = result.height;
     resultContext.drawImage(result, 0, 0);
 }
 
-function imageToFractal(image) {
+function imageToFractal(image, count) {
     const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
     const dstContext = dstCanvas.getContext("2d");
 
@@ -32,7 +36,7 @@ function imageToFractal(image) {
         height: dstCanvas.height
     };
 
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < count; i++) {
         if (blockList.length > 0) {
             // もっとも粗いブロックを探す
             let roughBlockIndex = 0;
@@ -64,7 +68,7 @@ function imageToFractal(image) {
         blockList = blockList.concat(quarterBlockList);
         // 平均値で塗る
         for (const block of quarterBlockList) {
-            drawAverage(imageData, block, originalPixelCount);
+            drawAverage(imageData, block, originalPixelCount, isStroke, isFill);
         }
         dstContext.putImageData(imageData, roughBlock.startX, roughBlock.startY);
     }
@@ -72,7 +76,7 @@ function imageToFractal(image) {
     // 下と右に線を引く
     const imageData = dstContext.getImageData(0, 0, dstCanvas.width, dstCanvas.height);
     for (let x = 0; x < imageData.width; x++) {
-        const i = x * 4 + (imageData.width * 4) * imageData.height;
+        const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
         imageData.data[i + 0] = 0;
         imageData.data[i + 1] = 0;
         imageData.data[i + 2] = 0;
@@ -108,7 +112,7 @@ function quarterSplit(block) {
     ];
 }
 
-function drawAverage(imageData, block, originalPixelCount) {
+function drawAverage(imageData, block, originalPixelCount, isStroke, isFill) {
     const data = imageData.data;
     const imageWidth = imageData.width;
     const imageHeight = imageData.height;
@@ -170,15 +174,20 @@ function drawAverage(imageData, block, originalPixelCount) {
     for (let x = startX; x < endX; x++) {
         for (let y = startY; y < endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
-            if (x === startX || y === startY) {
+            if (isStroke && (x === startX || y === startY)) {
                 data[i + 0] = 0;
                 data[i + 1] = 0;
                 data[i + 2] = 0;
             }
-            else {
+            else if (isFill) {
                 data[i + 0] = averageR;
                 data[i + 1] = averageG;
                 data[i + 2] = averageB;
+            }
+            else {
+                data[i + 0] = 255;
+                data[i + 1] = 255;
+                data[i + 2] = 255;
             }
         }
     }

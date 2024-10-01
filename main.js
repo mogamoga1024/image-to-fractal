@@ -80,6 +80,8 @@ function drawAverage(imageData, block) {
     const endY = block.startY + block.height;
     const pixelCount = block.width * block.height;
 
+    const colorList = [];
+
     let averageR = 0;
     let averageG = 0;
     let averageB = 0;
@@ -89,6 +91,11 @@ function drawAverage(imageData, block) {
             averageR += data[i + 0];
             averageG += data[i + 1];
             averageB += data[i + 2];
+            colorList.push({
+                r: data[i + 0],
+                g: data[i + 1],
+                b: data[i + 2]
+            });
         }
     }
     averageR = averageR / pixelCount;
@@ -103,5 +110,14 @@ function drawAverage(imageData, block) {
             data[i + 2] = averageB;
         }
     }
+
+    let roughnessMax = 0;
+    for (const {r, g, b} of colorList) {
+        const roughness = Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
+        if (roughnessMax < roughness) {
+            roughnessMax = roughness;
+        }
+    }
+    block.roughness = roughnessMax;
 }
 

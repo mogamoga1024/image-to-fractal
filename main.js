@@ -45,7 +45,7 @@ function imageToFractal(image) {
         dstContext.putImageData(imageData, 0, 0);
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 150; i++) {
         // もっとも粗いブロックを探す
         let roughBlockIndex = 0;
         let roughBlock = blockList[0];
@@ -165,9 +165,19 @@ function drawAverage(imageData, block, originalPixelCount) {
     for (let x = startX; x < endX; x++) {
         for (let y = startY; y < endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
-            data[i + 0] = averageR;
-            data[i + 1] = averageG;
-            data[i + 2] = averageB;
+            if (
+                x === startX   || y === startY   ||
+                x === endX - 1 || y === endY - 1
+            ) {
+                data[i + 0] = 0;
+                data[i + 1] = 0;
+                data[i + 2] = 0;
+            }
+            else {
+                data[i + 0] = averageR;
+                data[i + 1] = averageG;
+                data[i + 2] = averageB;
+            }
         }
     }
 

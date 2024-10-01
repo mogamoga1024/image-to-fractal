@@ -3,8 +3,9 @@ const resultCanvas = document.querySelector("#result");
 const resultContext = resultCanvas.getContext("2d");
 
 const image = new Image();
-image.src = "image/野獣先輩.png";
+// image.src = "image/野獣先輩.png";
 // image.src = "image/0000000000000000000000000000000000000000000000000000000000000000000.png";
+image.src = "image/test.png";
 image.onload = () => {
     main();
 };

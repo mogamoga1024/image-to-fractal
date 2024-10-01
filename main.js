@@ -43,33 +43,7 @@ function imageToFractal(image) {
         dstContext.putImageData(imageData, 0, 0);
     }
 
-    {
-        // もっとも粗いブロックを探す
-        const roughBlock = blockList.reduce((result, block) => {
-            return result.roughness < block.roughness ? block : result;
-        }, blockList[0]);
-        blockList.splice(blockList.indexOf(roughBlock), 1);
-
-        const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
-        const srcContext = srcCanvas.getContext("2d");
-        srcContext.drawImage(
-            image,
-            roughBlock.startX, roughBlock.startY, roughBlock.width, roughBlock.height,
-            0, 0, roughBlock.width, roughBlock.height
-        );
-        const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-
-        // 分割する
-        const quarterBlockList = quarterSplit(roughBlock);
-        blockList = blockList.concat(quarterBlockList);
-        // 平均値で塗る
-        for (const block of quarterBlockList) {
-            drawAverage(imageData, block);
-        }
-        dstContext.putImageData(imageData, roughBlock.startX, roughBlock.startY);
-    }
-
-    {
+    for (let i = 0; i < 4; i++) {
         // もっとも粗いブロックを探す
         const roughBlock = blockList.reduce((result, block) => {
             return result.roughness < block.roughness ? block : result;

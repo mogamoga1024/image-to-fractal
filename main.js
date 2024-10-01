@@ -25,39 +25,28 @@ function imageToFractal(image) {
     let blockList = [];
     const originalPixelCount = dstCanvas.width * dstCanvas.height;
 
-    {
-        const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
-        const srcContext = srcCanvas.getContext("2d");
-        srcContext.drawImage(image, 0, 0);
-        const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-
-        // 分割する
-        const quarterBlockList = quarterSplit({
-            startX: 0, startY: 0,
-            width: imageData.width,
-            height: imageData.height
-        });
-        blockList = blockList.concat(quarterBlockList);
-        // 平均値で塗る
-        for (const block of quarterBlockList) {
-            drawAverage(imageData, block, originalPixelCount);
-        }
-        dstContext.putImageData(imageData, 0, 0);
-    }
+    let roughBlock = {
+        startX: 0,
+        startY: 0,
+        width: dstCanvas.width,
+        height: dstCanvas.height
+    };
 
     for (let i = 0; i < 150; i++) {
-        // もっとも粗いブロックを探す
-        let roughBlockIndex = 0;
-        let roughBlock = blockList[0];
-        for (let i = 0; i < blockList.length; i++) {
-            const block = blockList[i];
-            if (roughBlock.roughness < block.roughness) {
-                roughBlockIndex = i;
-                roughBlock = block;
+        if (blockList.length > 0) {
+            // もっとも粗いブロックを探す
+            let roughBlockIndex = 0;
+            roughBlock = blockList[0];
+            for (let i = 0; i < blockList.length; i++) {
+                const block = blockList[i];
+                if (roughBlock.roughness < block.roughness) {
+                    roughBlockIndex = i;
+                    roughBlock = block;
+                }
             }
+            blockList.splice(roughBlockIndex, 1);
         }
-        blockList.splice(roughBlockIndex, 1);
-
+        
         const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
         const srcContext = srcCanvas.getContext("2d");
         srcContext.drawImage(

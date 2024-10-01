@@ -69,6 +69,22 @@ function imageToFractal(image) {
         dstContext.putImageData(imageData, roughBlock.startX, roughBlock.startY);
     }
 
+    // 下と右に線を引く
+    const imageData = dstContext.getImageData(0, 0, dstCanvas.width, dstCanvas.height);
+    for (let x = 0; x < imageData.width; x++) {
+        const i = x * 4 + (imageData.width * 4) * imageData.height;
+        imageData.data[i + 0] = 0;
+        imageData.data[i + 1] = 0;
+        imageData.data[i + 2] = 0;
+    }
+    for (let y = 0; y < imageData.height; y++) {
+        const i = (imageData.width - 1) * 4 + (imageData.width * 4) * y;
+        imageData.data[i + 0] = 0;
+        imageData.data[i + 1] = 0;
+        imageData.data[i + 2] = 0;
+    }
+    dstContext.putImageData(imageData, 0, 0);
+
     return dstCanvas;
 }
 
@@ -154,10 +170,7 @@ function drawAverage(imageData, block, originalPixelCount) {
     for (let x = startX; x < endX; x++) {
         for (let y = startY; y < endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
-            if (
-                x === startX   || y === startY   ||
-                x === endX - 1 || y === endY - 1
-            ) {
+            if (x === startX || y === startY) {
                 data[i + 0] = 0;
                 data[i + 1] = 0;
                 data[i + 2] = 0;

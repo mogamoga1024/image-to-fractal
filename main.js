@@ -18,45 +18,48 @@ function main() {
 }
 
 function imageToFractal(image) {
-    const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
-    const srcContext = srcCanvas.getContext("2d");
     const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
     const dstContext = dstCanvas.getContext("2d");
 
-    srcContext.drawImage(image, 0, 0);
-    const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-    const data = imageData.data;
+    let blockList = [];
 
-    // 透明な黒は白に
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i + 0];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const a = data[i + 3];
-        if (r + g + b + a === 0) {
-            data[i + 0] = 255;
-            data[i + 1] = 255;
-            data[i + 2] = 255;
-            data[i + 3] = 255;
+    {
+        const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+        const srcContext = srcCanvas.getContext("2d");
+        srcContext.drawImage(image, 0, 0);
+        const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+
+        // 分割する
+        blockList = quarterSplit({
+            startX: 0, startY: 0,
+            width: imageData.width,
+            height: imageData.height
+        });
+        // 平均値で塗る
+        for (const block of blockList) {
+            drawAverage(imageData, block);
         }
+        dstContext.putImageData(imageData, 0, 0);
     }
 
-    const blockList = quarterSplit({
-        startX: 0, startY: 0,
-        width: imageData.width,
-        height: imageData.height
-    });
-    for (const block of blockList) {
-        drawAverage(imageData, block);
-    }
-    dstContext.putImageData(imageData, 0, 0);
+    {
+        // もっとも粗いブロックを探す
+        const roughBlock = blockList.reduce((result, block) => {
+            return result.roughness < block.roughness ? block : result;
+        }, blockList[0]);
 
-    const roughBlock = blockList.reduce((result, block) => {
-        return result.roughness < block.roughness ? block : result;
-    }, blockList[0]);
-    const blockList2 = quarterSplit(roughBlock);
-    for (const block of blockList2) {
-        drawAverage(imageData, block);
+        const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
+        const srcContext = srcCanvas.getContext("2d");
+        srcContext.drawImage(image, roughBlock.startX, roughBlock.startY, roughBlock.width, roughBlock.height);
+        const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+
+        // 分割する todo
+        const blockList2 = quarterSplit(roughBlock);
+        // 平均値で塗る
+        for (const block of blockList2) {
+            drawAverage(imageData, block);
+        }
+        dstContext.putImageData(imageData, roughBlock.startX, roughBlock.startY);
     }
 
     return dstCanvas;
@@ -99,6 +102,12 @@ function drawAverage(imageData, block) {
     for (let x = startX; x < endX; x++) {
         for (let y = startY; y < endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
+            // 透明な黒は白にする
+            if (data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0 && data[i + 3] === 0) {
+                data[i + 0] = 255;
+                data[i + 1] = 255;
+                data[i + 2] = 255;
+            }
             averageR += data[i + 0];
             averageG += data[i + 1];
             averageB += data[i + 2];

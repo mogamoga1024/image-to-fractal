@@ -50,7 +50,11 @@ function imageToFractal(image) {
 
         const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
         const srcContext = srcCanvas.getContext("2d");
-        srcContext.drawImage(image, roughBlock.startX, roughBlock.startY, roughBlock.width, roughBlock.height);
+        srcContext.drawImage(
+            image,
+            roughBlock.startX, roughBlock.startY, roughBlock.width, roughBlock.height,
+            0, 0, roughBlock.width, roughBlock.height
+        );
         const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
 
         // 分割する todo
@@ -107,6 +111,9 @@ function drawAverage(imageData, block) {
                 data[i + 0] = 255;
                 data[i + 1] = 255;
                 data[i + 2] = 255;
+            }
+            if (data[i + 3] !== 255) {
+                data[i + 3] = 255;
             }
             averageR += data[i + 0];
             averageG += data[i + 1];

@@ -74,19 +74,21 @@ function imageToFractal(image, count) {
         drawAverage(imageData, block, isStroke, isFill);
     }
 
-    // 下に線を引く
-    for (let x = 0; x < imageData.width; x++) {
-        const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
-        imageData.data[i + 0] = 0;
-        imageData.data[i + 1] = 0;
-        imageData.data[i + 2] = 0;
-    }
-    // 右に線を引く
-    for (let y = 0; y < imageData.height; y++) {
-        const i = (imageData.width - 1) * 4 + (imageData.width * 4) * y;
-        imageData.data[i + 0] = 0;
-        imageData.data[i + 1] = 0;
-        imageData.data[i + 2] = 0;
+    if (isStroke) {
+        // 下に線を引く
+        for (let x = 0; x < imageData.width; x++) {
+            const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
+            imageData.data[i + 0] = 0;
+            imageData.data[i + 1] = 0;
+            imageData.data[i + 2] = 0;
+        }
+        // 右に線を引く
+        for (let y = 0; y < imageData.height; y++) {
+            const i = (imageData.width - 1) * 4 + (imageData.width * 4) * y;
+            imageData.data[i + 0] = 0;
+            imageData.data[i + 1] = 0;
+            imageData.data[i + 2] = 0;
+        }
     }
 
     const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);

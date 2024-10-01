@@ -45,12 +45,18 @@ function imageToFractal(image) {
         dstContext.putImageData(imageData, 0, 0);
     }
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 20; i++) {
         // もっとも粗いブロックを探す
-        const roughBlock = blockList.reduce((result, block) => {
-            return result.roughness < block.roughness ? block : result;
-        }, blockList[0]);
-        blockList.splice(blockList.indexOf(roughBlock), 1); // todo 計算量減らせる
+        let roughBlockIndex = 0;
+        let roughBlock = blockList[0];
+        for (let i = 0; i < blockList.length; i++) {
+            const block = blockList[i];
+            if (roughBlock.roughness < block.roughness) {
+                roughBlockIndex = i;
+                roughBlock = block;
+            }
+        }
+        blockList.splice(roughBlockIndex, 1);
 
         const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
         const srcContext = srcCanvas.getContext("2d");

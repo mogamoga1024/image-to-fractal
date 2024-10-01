@@ -3,9 +3,9 @@ const resultCanvas = document.querySelector("#result");
 const resultContext = resultCanvas.getContext("2d");
 
 const image = new Image();
-// image.src = "image/野獣先輩.png";
+image.src = "image/野獣先輩.png";
 // image.src = "image/0000000000000000000000000000000000000000000000000000000000000000000.png";
-image.src = "image/test.png";
+// image.src = "image/test.png";
 image.onload = () => {
     main();
 };
@@ -23,6 +23,7 @@ function imageToFractal(image) {
     const dstContext = dstCanvas.getContext("2d");
 
     let blockList = [];
+    const originalPixelCount = dstCanvas.width * dstCanvas.height;
 
     {
         const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
@@ -39,12 +40,12 @@ function imageToFractal(image) {
         blockList = blockList.concat(quarterBlockList);
         // 平均値で塗る
         for (const block of quarterBlockList) {
-            drawAverage(imageData, block);
+            drawAverage(imageData, block, originalPixelCount);
         }
         dstContext.putImageData(imageData, 0, 0);
     }
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 100; i++) {
         // もっとも粗いブロックを探す
         const roughBlock = blockList.reduce((result, block) => {
             return result.roughness < block.roughness ? block : result;
@@ -65,7 +66,7 @@ function imageToFractal(image) {
         blockList = blockList.concat(quarterBlockList);
         // 平均値で塗る
         for (const block of quarterBlockList) {
-            drawAverage(imageData, block);
+            drawAverage(imageData, block, originalPixelCount);
         }
         dstContext.putImageData(imageData, roughBlock.startX, roughBlock.startY);
     }
@@ -93,7 +94,7 @@ function quarterSplit(block) {
     ];
 }
 
-function drawAverage(imageData, block) {
+function drawAverage(imageData, block, originalPixelCount) {
     const data = imageData.data;
     const imageWidth = imageData.width;
     const imageHeight = imageData.height;
@@ -166,6 +167,6 @@ function drawAverage(imageData, block) {
     for (const {r, g, b} of colorList) {
         roughnessSum += Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
     }
-    block.roughness = roughnessSum / colorList.length;
+    block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
 }
 

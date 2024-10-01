@@ -63,6 +63,9 @@ function imageToFractal(image) {
 
         // 分割する
         const quarterBlockList = quarterSplit(roughBlock);
+        if (quarterBlockList.length === 0) {
+            break;
+        }
         blockList = blockList.concat(quarterBlockList);
         // 平均値で塗る
         for (const block of quarterBlockList) {

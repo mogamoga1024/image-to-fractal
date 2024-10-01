@@ -23,17 +23,19 @@ function main() {
 }
 
 function imageToFractal(image, count) {
-    const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
-    const dstContext = dstCanvas.getContext("2d");
+    const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const srcContext = srcCanvas.getContext("2d");
+    srcContext.drawImage(image, 0, 0);
+    const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
 
     let blockList = [];
-    const originalPixelCount = dstCanvas.width * dstCanvas.height;
+    const originalPixelCount = srcCanvas.width * srcCanvas.height;
 
     let roughBlock = {
         startX: 0,
         startY: 0,
-        width: dstCanvas.width,
-        height: dstCanvas.height
+        width: srcCanvas.width,
+        height: srcCanvas.height
     };
 
     for (let i = 0; i < count; i++) {
@@ -51,15 +53,6 @@ function imageToFractal(image, count) {
             blockList.splice(roughBlockIndex, 1);
         }
         
-        const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
-        const srcContext = srcCanvas.getContext("2d");
-        srcContext.drawImage(
-            image,
-            roughBlock.startX, roughBlock.startY, roughBlock.width, roughBlock.height,
-            0, 0, roughBlock.width, roughBlock.height
-        );
-        const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
-
         // 分割する
         const quarterBlockList = quarterSplit(roughBlock);
         if (quarterBlockList.length === 0) {
@@ -68,13 +61,16 @@ function imageToFractal(image, count) {
         blockList = blockList.concat(quarterBlockList);
         // 平均値で塗る
         for (const block of quarterBlockList) {
-            drawAverage(imageData, block, originalPixelCount, isStroke, isFill);
+            splitBlock(imageData, block, originalPixelCount);
         }
-        dstContext.putImageData(imageData, roughBlock.startX, roughBlock.startY);
+    }
+
+    // 平均値で塗る
+    for (const block of blockList) {
+        drawAverage(imageData, block, isStroke, isFill);
     }
 
     // 下と右に線を引く
-    const imageData = dstContext.getImageData(0, 0, dstCanvas.width, dstCanvas.height);
     for (let x = 0; x < imageData.width; x++) {
         const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
         imageData.data[i + 0] = 0;
@@ -87,6 +83,9 @@ function imageToFractal(image, count) {
         imageData.data[i + 1] = 0;
         imageData.data[i + 2] = 0;
     }
+
+    const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const dstContext = dstCanvas.getContext("2d");
     dstContext.putImageData(imageData, 0, 0);
 
     return dstCanvas;
@@ -105,40 +104,21 @@ function quarterSplit(block) {
     const halfHeight2 = height - halfHeight1;
 
     return [
-        {section: 1, startX: startX,              startY: startY,               width: halfWidth1, height: halfHeight1},
-        {section: 2, startX: startX + halfWidth1, startY: startY,               width: halfWidth2, height: halfHeight1},
-        {section: 3, startX: startX,              startY: startY + halfHeight1, width: halfWidth1, height: halfHeight2},
-        {section: 4, startX: startX + halfWidth1, startY: startY + halfHeight1, width: halfWidth2, height: halfHeight2},
+        {startX: startX,              startY: startY,               width: halfWidth1, height: halfHeight1},
+        {startX: startX + halfWidth1, startY: startY,               width: halfWidth2, height: halfHeight1},
+        {startX: startX,              startY: startY + halfHeight1, width: halfWidth1, height: halfHeight2},
+        {startX: startX + halfWidth1, startY: startY + halfHeight1, width: halfWidth2, height: halfHeight2},
     ];
 }
 
-function drawAverage(imageData, block, originalPixelCount, isStroke, isFill) {
+function splitBlock(imageData, block, originalPixelCount) {
     const data = imageData.data;
     const imageWidth = imageData.width;
-    const imageHeight = imageData.height;
-    let startX = 0;
-    let startY = 0;
-    let endX = block.width;
-    let endY = block.height;
+    let startX = block.startX;
+    let startY = block.startY;
+    let endX = block.startX + block.width;
+    let endY = block.startY + block.height;
     const pixelCount = block.width * block.height;
-
-    if (block.section === 1) {
-        // noop
-    }
-    else if (block.section === 2) {
-        startX = imageWidth - block.width;
-        endX = imageWidth;
-    }
-    else if (block.section === 3) {
-        startY = imageHeight - block.height;
-        endY = imageHeight;
-    }
-    else if (block.section === 4) {
-        startX = imageWidth - block.width;
-        startY = imageHeight - block.height;
-        endX = imageWidth;
-        endY = imageHeight;
-    }
 
     const colorList = [];
 
@@ -171,6 +151,25 @@ function drawAverage(imageData, block, originalPixelCount, isStroke, isFill) {
     averageG = averageG / pixelCount;
     averageB = averageB / pixelCount;
 
+    block.r = averageR;
+    block.g = averageG;
+    block.b = averageB;
+
+    let roughnessSum = 0;
+    for (const {r, g, b} of colorList) {
+        roughnessSum += Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
+    }
+    block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
+}
+
+function drawAverage(imageData, block, isStroke, isFill) {
+    const data = imageData.data;
+    const imageWidth = imageData.width;
+    let startX = block.startX;
+    let startY = block.startY;
+    let endX = block.startX + block.width;
+    let endY = block.startY + block.height;
+
     for (let x = startX; x < endX; x++) {
         for (let y = startY; y < endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
@@ -180,9 +179,9 @@ function drawAverage(imageData, block, originalPixelCount, isStroke, isFill) {
                 data[i + 2] = 0;
             }
             else if (isFill) {
-                data[i + 0] = averageR;
-                data[i + 1] = averageG;
-                data[i + 2] = averageB;
+                data[i + 0] = block.r;
+                data[i + 1] = block.g;
+                data[i + 2] = block.b;
             }
             else {
                 data[i + 0] = 255;
@@ -191,11 +190,5 @@ function drawAverage(imageData, block, originalPixelCount, isStroke, isFill) {
             }
         }
     }
-
-    let roughnessSum = 0;
-    for (const {r, g, b} of colorList) {
-        roughnessSum += Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
-    }
-    block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
 }
 

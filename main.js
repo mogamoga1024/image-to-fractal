@@ -3,16 +3,18 @@ const resultCanvas = document.querySelector("#result");
 const resultContext = resultCanvas.getContext("2d");
 
 const image = new Image();
-image.src = "image/野獣先輩.png";
+// image.src = "image/野獣先輩.png";
 // image.src = "image/0000000000000000000000000000000000000000000000000000000000000000000.png";
-// image.src = "image/test.png";
+image.src = "image/test.png";
 image.onload = () => {
     main();
 };
 
-let count = 150;
+let count = 300;
 let isStroke = true;
 let isFill = true;
+// let shape = "rect";
+let shape = "circle";
 
 function main() {
     const result = imageToFractal(image, count);
@@ -69,31 +71,43 @@ function imageToFractal(image, count) {
         }
     }
 
-    // 平均値で塗る
-    for (const block of blockList) {
-        drawBlock(imageData, block, isStroke, isFill);
-    }
-
-    if (isStroke) {
-        // 下に線を引く
-        for (let x = 0; x < imageData.width; x++) {
-            const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
-            imageData.data[i + 0] = 0;
-            imageData.data[i + 1] = 0;
-            imageData.data[i + 2] = 0;
-        }
-        // 右に線を引く
-        for (let y = 0; y < imageData.height; y++) {
-            const i = (imageData.width - 1) * 4 + (imageData.width * 4) * y;
-            imageData.data[i + 0] = 0;
-            imageData.data[i + 1] = 0;
-            imageData.data[i + 2] = 0;
-        }
-    }
-
     const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
     const dstContext = dstCanvas.getContext("2d");
-    dstContext.putImageData(imageData, 0, 0);
+
+    if (shape === "rect") {
+        // 平均値で塗る
+        for (const block of blockList) {
+            drawBlock(imageData, block, isStroke, isFill);
+        }
+
+        if (isStroke) {
+            // 下に線を引く
+            for (let x = 0; x < imageData.width; x++) {
+                const i = x * 4 + (imageData.width * 4) * (imageData.height - 1);
+                imageData.data[i + 0] = 0;
+                imageData.data[i + 1] = 0;
+                imageData.data[i + 2] = 0;
+            }
+            // 右に線を引く
+            for (let y = 0; y < imageData.height; y++) {
+                const i = (imageData.width - 1) * 4 + (imageData.width * 4) * y;
+                imageData.data[i + 0] = 0;
+                imageData.data[i + 1] = 0;
+                imageData.data[i + 2] = 0;
+            }
+        }
+
+        dstContext.putImageData(imageData, 0, 0);
+    }
+    else if (shape === "circle") {
+        // 平均値で塗る
+        if (isFill) for (const block of blockList) {
+            drawCircle(dstContext, block, "fill");
+        }
+        if (isStroke) for (const block of blockList) {
+            drawCircle(dstContext, block, "stroke");
+        }
+    }
 
     return dstCanvas;
 }
@@ -168,10 +182,10 @@ function calcAverage(imageData, block, originalPixelCount) {
 function drawBlock(imageData, block, isStroke, isFill) {
     const data = imageData.data;
     const imageWidth = imageData.width;
-    let startX = block.startX;
-    let startY = block.startY;
-    let endX = block.startX + block.width - 1;
-    let endY = block.startY + block.height - 1;
+    const startX = block.startX;
+    const startY = block.startY;
+    const endX = block.startX + block.width - 1;
+    const endY = block.startY + block.height - 1;
 
     for (let x = startX; x <= endX; x++) {
         for (let y = startY; y <= endY; y++) {
@@ -192,6 +206,28 @@ function drawBlock(imageData, block, isStroke, isFill) {
                 data[i + 2] = 255;
             }
         }
+    }
+}
+
+function drawCircle(context, block, type) {
+    const startX = block.startX;
+    const startY = block.startY;
+
+    const radius = Math.max(block.width / 2, block.height / 2);
+    const centerX = startX + block.width / 2;
+    const centerY = startY + block.height / 2;
+
+    context.beginPath();
+    context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+    if (type === "stroke") {
+        context.strokeStyle = "black";
+        context.lineWidth = 1;
+        context.stroke();
+    }
+    else if (type === "fill") {
+        context.fillStyle = `rgba(${block.r}, ${block.g}, ${block.b}, 0.99)`;
+        context.fill();
     }
 }
 

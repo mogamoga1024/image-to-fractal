@@ -9,9 +9,20 @@ image.onload = () => {
 };
 
 function main() {
-    resultCanvas.width = image.naturalWidth;
-    resultCanvas.height = image.naturalHeight;
+    const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const srcContext = srcCanvas.getContext("2d");
     
-    resultContext.drawImage(image, 0, 0);
+    srcContext.drawImage(image, 0, 0);
+    const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+
+    imageToFractal(imageData);
+
+    resultCanvas.width = srcCanvas.width;
+    resultCanvas.height = srcCanvas.height;
+    resultContext.putImageData(imageData, 0, 0);
+}
+
+function imageToFractal(imageData) {
+    // todo
 }
 

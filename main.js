@@ -43,7 +43,7 @@ function imageToFractal(image) {
         dstContext.putImageData(imageData, 0, 0);
     }
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 200; i++) {
         // もっとも粗いブロックを探す
         const roughBlock = blockList.reduce((result, block) => {
             return result.roughness < block.roughness ? block : result;
@@ -161,13 +161,10 @@ function drawAverage(imageData, block) {
         }
     }
 
-    let roughnessMax = 0;
+    let roughnessSum = 0;
     for (const {r, g, b} of colorList) {
-        const roughness = Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
-        if (roughnessMax < roughness) {
-            roughnessMax = roughness;
-        }
+        roughnessSum += Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
     }
-    block.roughness = roughnessMax;
+    block.roughness = roughnessSum / colorList.length;
 }
 

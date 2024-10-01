@@ -10,20 +10,21 @@ image.onload = () => {
 };
 
 function main() {
-    const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
-    const srcContext = srcCanvas.getContext("2d");
-    
-    srcContext.drawImage(image, 0, 0);
-    const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
+    const result = imageToFractal(image);
 
-    imageToFractal(imageData);
-
-    resultCanvas.width = srcCanvas.width;
-    resultCanvas.height = srcCanvas.height;
-    resultContext.putImageData(imageData, 0, 0);
+    resultCanvas.width = result.width;
+    resultCanvas.height = result.height;
+    resultContext.drawImage(result, 0, 0);
 }
 
-function imageToFractal(imageData) {
+function imageToFractal(image) {
+    const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const srcContext = srcCanvas.getContext("2d");
+    const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const dstContext = dstCanvas.getContext("2d");
+
+    srcContext.drawImage(image, 0, 0);
+    const imageData = srcContext.getImageData(0, 0, srcCanvas.width, srcCanvas.height);
     const data = imageData.data;
 
     // 透明な黒は白に
@@ -45,10 +46,20 @@ function imageToFractal(imageData) {
         width: imageData.width,
         height: imageData.height
     });
-
     for (const block of blockList) {
         drawAverage(imageData, block);
     }
+    dstContext.putImageData(imageData, 0, 0);
+
+    const roughBlock = blockList.reduce((result, block) => {
+        return result.roughness < block.roughness ? block : result;
+    }, blockList[0]);
+    const blockList2 = quarterSplit(roughBlock);
+    for (const block of blockList2) {
+        drawAverage(imageData, block);
+    }
+
+    return dstCanvas;
 }
 
 function quarterSplit(block) {

@@ -59,9 +59,9 @@ function imageToFractal(image, count) {
             break;
         }
         blockList = blockList.concat(quarterBlockList);
-        // 平均値で塗る
+        // 平均値などを求める
         for (const block of quarterBlockList) {
-            splitBlock(imageData, block, originalPixelCount);
+            calcAverage(imageData, block, originalPixelCount);
         }
     }
 
@@ -111,7 +111,7 @@ function quarterSplit(block) {
     ];
 }
 
-function splitBlock(imageData, block, originalPixelCount) {
+function calcAverage(imageData, block, originalPixelCount) {
     const data = imageData.data;
     const imageWidth = imageData.width;
     let startX = block.startX;

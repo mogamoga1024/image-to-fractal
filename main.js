@@ -11,7 +11,8 @@ image.onload = () => {
 };
 
 let count = 300;
-let isStroke = true;
+// let isStroke = true;
+let isStroke = false;
 let isFill = true;
 // let shape = "rect";
 let shape = "circle";

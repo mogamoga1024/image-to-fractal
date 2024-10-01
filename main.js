@@ -140,7 +140,6 @@ function drawAverage(imageData, block, originalPixelCount) {
                 data[i + 3] = 255;
             }
             averageR += data[i + 0];
-            if (isNaN(averageR)) debugger; // todo assert
             averageG += data[i + 1];
             averageB += data[i + 2];
             colorList.push({

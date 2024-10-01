@@ -116,17 +116,17 @@ function splitBlock(imageData, block, originalPixelCount) {
     const imageWidth = imageData.width;
     let startX = block.startX;
     let startY = block.startY;
-    let endX = block.startX + block.width;
-    let endY = block.startY + block.height;
+    let endX = block.startX + block.width - 1;
+    let endY = block.startY + block.height - 1;
     const pixelCount = block.width * block.height;
 
     const colorList = [];
 
-    let averageR = 0;
-    let averageG = 0;
-    let averageB = 0;
-    for (let x = startX; x < endX; x++) {
-        for (let y = startY; y < endY; y++) {
+    let totalR = 0;
+    let totalG = 0;
+    let totalB = 0;
+    for (let x = startX; x <= endX; x++) {
+        for (let y = startY; y <= endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
             // 透明な黒は白にする
             if (data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0 && data[i + 3] === 0) {
@@ -137,9 +137,9 @@ function splitBlock(imageData, block, originalPixelCount) {
             if (data[i + 3] !== 255) {
                 data[i + 3] = 255;
             }
-            averageR += data[i + 0];
-            averageG += data[i + 1];
-            averageB += data[i + 2];
+            totalR += data[i + 0];
+            totalG += data[i + 1];
+            totalB += data[i + 2];
             colorList.push({
                 r: data[i + 0],
                 g: data[i + 1],
@@ -147,17 +147,13 @@ function splitBlock(imageData, block, originalPixelCount) {
             });
         }
     }
-    averageR = averageR / pixelCount;
-    averageG = averageG / pixelCount;
-    averageB = averageB / pixelCount;
-
-    block.r = averageR;
-    block.g = averageG;
-    block.b = averageB;
+    block.r = totalR / pixelCount;
+    block.g = totalG / pixelCount;
+    block.b = totalB / pixelCount;
 
     let roughnessSum = 0;
     for (const {r, g, b} of colorList) {
-        roughnessSum += Math.abs(averageR - r) + Math.abs(averageG - g) + Math.abs(averageB - b);
+        roughnessSum += Math.abs(block.r - r) + Math.abs(block.g - g) + Math.abs(block.b - b);
     }
     block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
 }
@@ -167,11 +163,11 @@ function drawAverage(imageData, block, isStroke, isFill) {
     const imageWidth = imageData.width;
     let startX = block.startX;
     let startY = block.startY;
-    let endX = block.startX + block.width;
-    let endY = block.startY + block.height;
+    let endX = block.startX + block.width - 1;
+    let endY = block.startY + block.height - 1;
 
-    for (let x = startX; x < endX; x++) {
-        for (let y = startY; y < endY; y++) {
+    for (let x = startX; x <= endX; x++) {
+        for (let y = startY; y <= endY; y++) {
             const i = x * 4 + (imageWidth * 4) * y;
             if (isStroke && (x === startX || y === startY)) {
                 data[i + 0] = 0;

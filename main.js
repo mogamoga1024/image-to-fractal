@@ -43,12 +43,12 @@ function imageToFractal(image) {
         dstContext.putImageData(imageData, 0, 0);
     }
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 10; i++) {
         // もっとも粗いブロックを探す
         const roughBlock = blockList.reduce((result, block) => {
             return result.roughness < block.roughness ? block : result;
         }, blockList[0]);
-        blockList.splice(blockList.indexOf(roughBlock), 1);
+        blockList.splice(blockList.indexOf(roughBlock), 1); // todo 計算量減らせる
 
         const srcCanvas = new OffscreenCanvas(roughBlock.width, roughBlock.height);
         const srcContext = srcCanvas.getContext("2d");
@@ -85,21 +85,40 @@ function quarterSplit(block) {
     const halfHeight2 = height - halfHeight1;
 
     return [
-        {startX: startX,              startY: startY,               width: halfWidth1, height: halfHeight1},
-        {startX: startX + halfWidth1, startY: startY,               width: halfWidth2, height: halfHeight1},
-        {startX: startX,              startY: startY + halfHeight1, width: halfWidth1, height: halfHeight2},
-        {startX: startX + halfWidth1, startY: startY + halfHeight1, width: halfWidth2, height: halfHeight2},
+        {section: 1, startX: startX,              startY: startY,               width: halfWidth1, height: halfHeight1},
+        {section: 2, startX: startX + halfWidth1, startY: startY,               width: halfWidth2, height: halfHeight1},
+        {section: 3, startX: startX,              startY: startY + halfHeight1, width: halfWidth1, height: halfHeight2},
+        {section: 4, startX: startX + halfWidth1, startY: startY + halfHeight1, width: halfWidth2, height: halfHeight2},
     ];
 }
 
 function drawAverage(imageData, block) {
     const data = imageData.data;
     const imageWidth = imageData.width;
-    const startX = block.startX;
-    const endX = block.startX + block.width;
-    const startY = block.startY;
-    const endY = block.startY + block.height;
+    const imageHeight = imageData.height;
+    let startX = 0;
+    let startY = 0;
+    let endX = block.width;
+    let endY = block.height;
     const pixelCount = block.width * block.height;
+
+    if (block.section === 1) {
+        // noop
+    }
+    else if (block.section === 2) {
+        startX = imageWidth - block.width;
+        endX = imageWidth;
+    }
+    else if (block.section === 3) {
+        startY = imageHeight - block.height;
+        endY = imageHeight;
+    }
+    else if (block.section === 4) {
+        startX = imageWidth - block.width;
+        startY = imageHeight - block.height;
+        endX = imageWidth;
+        endY = imageHeight;
+    }
 
     const colorList = [];
 
@@ -119,6 +138,7 @@ function drawAverage(imageData, block) {
                 data[i + 3] = 255;
             }
             averageR += data[i + 0];
+            if (isNaN(averageR)) debugger; // todo assert
             averageG += data[i + 1];
             averageB += data[i + 2];
             colorList.push({

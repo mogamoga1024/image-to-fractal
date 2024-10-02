@@ -81,13 +81,15 @@ function drawFractal() {
     }
     isProcessing = true;
     setDisabled(true);
-    const result = imageToFractal(image, shape, count, isFill, isStroke, opacity);
-
-    resultCanvas.width = result.width;
-    resultCanvas.height = result.height;
-    resultContext.drawImage(result, 0, 0);
-    isProcessing = false;
-    setDisabled(false);
+    // あまり好きな方法ではない
+    setTimeout(() => {
+        const result = imageToFractal(image, shape, count, isFill, isStroke, opacity);
+        resultCanvas.width = result.width;
+        resultCanvas.height = result.height;
+        resultContext.drawImage(result, 0, 0);
+        isProcessing = false;
+        setDisabled(false);
+    }, 0);
 }
 
 // ◇◇◇ 便利関数 ◇◇◇

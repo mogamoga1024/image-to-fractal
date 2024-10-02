@@ -6,17 +6,18 @@ const radioRectDom = document.querySelector("#radio-rect");
 const radioCircleDom = document.querySelector("#radio-circle");
 const checkStrokeDom = document.querySelector("#check-stroke");
 const checkFillDom = document.querySelector("#check-fill");
+const inputCountDom = document.querySelector("#input-count");
+const inputOpacityDom = document.querySelector("#input-opacity");
 const resultCanvas = document.querySelector("#result");
 const resultContext = resultCanvas.getContext("2d");
-
-radioRectDom.checked = true;
-checkStrokeDom.checked = true;
-checkFillDom.checked = true;
 
 // ◇◇◇ 変数 ◇◇◇
 
 let image = null;
 let count = 500;
+const countDefault = 500;
+const countMin = 1;
+const countMax = 3000;
 let isStroke = true;
 let isFill = true;
 let shape = "rect";
@@ -25,6 +26,14 @@ let opacity = 1;
 let isProcessing = false;
 
 // ◇◇◇ 初期表示 ◇◇◇
+
+radioRectDom.checked = true;
+checkStrokeDom.checked = true;
+checkFillDom.checked = true;
+inputCountDom.value = count;
+inputCountDom.min = countMin;
+inputCountDom.max = countMax;
+inputOpacityDom.value = 1;
 
 {
     image = new Image();
@@ -73,6 +82,38 @@ checkFillDom.onchange = () => {
     drawFractal();
 };
 
+inputCountDom.onblur = e => {
+    count = Number(e.target.value);
+    if (isNaN(count)) {
+        count = countDefault;
+    }
+    count = Math.floor(count);
+    if (count < countMin) {
+        count = countMin;
+    }
+    else if (count > countMax) {
+        count = countMax;
+    }
+    e.target.value = count;
+    drawFractal();
+};
+inputOpacityDom.onblur = e => {
+    opacity = Number(e.target.value);
+    if (isNaN(opacity)) {
+        opacity = 1;
+    }
+    if (opacity < 0) {
+        opacity = 0;
+    }
+    else if (opacity > 1) {
+        opacity = 1;
+    }
+    e.target.value = opacity;
+    drawFractal();
+};
+
+
+
 // ◇◇◇ フラクタル画像生成処理 ◇◇◇
 
 function drawFractal() {
@@ -100,5 +141,7 @@ function setDisabled(disabled) {
     radioCircleDom.disabled = disabled;
     checkStrokeDom.disabled = disabled;
     checkFillDom.disabled = disabled;
+    inputCountDom.disabled = disabled;
+    inputOpacityDom.disabled = disabled;
 }
 

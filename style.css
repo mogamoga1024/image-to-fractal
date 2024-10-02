@@ -18,6 +18,33 @@ label {
   align-items: center;
 }
 
+input {
+  margin: 0 4px;
+}
+
+input[type="number"] {
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+input[type="number"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+#input-count {
+  width: 60px;
+}
+
+#input-opacity {
+  width: 40px;
+}
+
 canvas {
   margin-top: 8px;
   max-width: 100%;

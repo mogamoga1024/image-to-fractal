@@ -156,7 +156,12 @@ function calcAverage(imageData, block, originalPixelCount) {
         // roughnessSum += Math.abs(block.r - r) + Math.abs(block.g - g) + Math.abs(block.b - b);
         roughnessSum += (block.r - r) ** 2 + (block.g - g) ** 2 + (block.b - b) ** 2;
     }
-    block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
+    if (block.width < 2 || block.height < 2) {
+        block.roughness = Number.NEGATIVE_INFINITY;
+    }
+    else {
+        block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
+    }
 }
 
 function drawBlock(imageData, block, isStroke, isFill, opacity) {

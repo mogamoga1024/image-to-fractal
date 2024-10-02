@@ -1,5 +1,9 @@
 
-function imageToFractal(image, shape, count, isFill, isStroke, opacity) {
+function imageToFractal(dstCanvas, image, shape, count, isFill, isStroke, opacity) {
+    dstCanvas.width = image.naturalWidth;
+    dstCanvas.height = image.naturalHeight;
+    const dstContext = dstCanvas.getContext("2d");
+
     const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
     const srcContext = srcCanvas.getContext("2d");
     srcContext.drawImage(image, 0, 0);
@@ -46,9 +50,6 @@ function imageToFractal(image, shape, count, isFill, isStroke, opacity) {
         }
     }
 
-    const dstCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
-    const dstContext = dstCanvas.getContext("2d");
-
     if (shape === "rect") {
         // 平均値で塗る
         for (const block of blockList) {
@@ -86,8 +87,6 @@ function imageToFractal(image, shape, count, isFill, isStroke, opacity) {
             drawCircle(dstContext, block, "stroke");
         }
     }
-
-    return dstCanvas;
 }
 
 function quarterSplit(block) {

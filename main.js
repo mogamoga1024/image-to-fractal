@@ -9,7 +9,6 @@ const checkFillDom = document.querySelector("#check-fill");
 const inputCountDom = document.querySelector("#input-count");
 const inputOpacityDom = document.querySelector("#input-opacity");
 const resultCanvas = document.querySelector("#result");
-const resultContext = resultCanvas.getContext("2d");
 
 // ◇◇◇ 変数 ◇◇◇
 
@@ -124,10 +123,7 @@ function drawFractal() {
     setDisabled(true);
     // あまり好きな方法ではない
     setTimeout(() => {
-        const result = imageToFractal(image, shape, count, isFill, isStroke, opacity);
-        resultCanvas.width = result.width;
-        resultCanvas.height = result.height;
-        resultContext.drawImage(result, 0, 0);
+        imageToFractal(resultCanvas, image, shape, count, isFill, isStroke, opacity);
         isProcessing = false;
         setDisabled(false);
     }, 0);

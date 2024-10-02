@@ -2,3 +2,15 @@
 * {
   background-color: #f4f4f4;
 }
+
+body {
+  padding: 16px;
+}
+
+#option-container {
+
+}
+
+canvas {
+  margin-top: 8px;
+}

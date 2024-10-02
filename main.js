@@ -22,6 +22,8 @@ let isFill = true;
 let shape = "rect";
 let opacity = 1;
 
+let isProcessing = false;
+
 // ◇◇◇ 初期表示 ◇◇◇
 
 {
@@ -74,10 +76,27 @@ checkFillDom.onchange = () => {
 // ◇◇◇ フラクタル画像生成処理 ◇◇◇
 
 function drawFractal() {
+    if (isProcessing) {
+        return;
+    }
+    isProcessing = true;
+    setDisabled(true);
     const result = imageToFractal(image, shape, count, isFill, isStroke, opacity);
 
     resultCanvas.width = result.width;
     resultCanvas.height = result.height;
     resultContext.drawImage(result, 0, 0);
+    isProcessing = false;
+    setDisabled(false);
+}
+
+// ◇◇◇ 便利関数 ◇◇◇
+
+function setDisabled(disabled) {
+    inputFileDom.disabled = disabled;
+    radioRectDom.disabled = disabled;
+    radioCircleDom.disabled = disabled;
+    checkStrokeDom.disabled = disabled;
+    checkFillDom.disabled = disabled;
 }
 

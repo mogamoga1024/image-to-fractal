@@ -152,7 +152,9 @@ function calcAverage(imageData, block, originalPixelCount) {
 
     let roughnessSum = 0;
     for (const {r, g, b} of colorList) {
-        roughnessSum += Math.abs(block.r - r) + Math.abs(block.g - g) + Math.abs(block.b - b);
+        // マンハッタンとユークリッド どっちがよいのだろうか
+        // roughnessSum += Math.abs(block.r - r) + Math.abs(block.g - g) + Math.abs(block.b - b);
+        roughnessSum += (block.r - r) ** 2 + (block.g - g) ** 2 + (block.b - b) ** 2;
     }
     block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
 }

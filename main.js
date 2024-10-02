@@ -4,21 +4,22 @@
 const inputFileDom = document.querySelector("#input-file");
 const radioRectDom = document.querySelector("#radio-rect");
 const radioCircleDom = document.querySelector("#radio-circle");
+const checkStrokeDom = document.querySelector("#check-stroke");
+const checkFillDom = document.querySelector("#check-fill");
 const resultCanvas = document.querySelector("#result");
 const resultContext = resultCanvas.getContext("2d");
 
 radioRectDom.checked = true;
+checkStrokeDom.checked = true;
+checkFillDom.checked = true;
 
 // ◇◇◇ 変数 ◇◇◇
 
 let image = null;
 let count = 500;
 let isStroke = true;
-// let isStroke = false;
 let isFill = true;
-// let isFill = false;
 let shape = "rect";
-// let shape = "circle";
 let opacity = 1;
 
 // ◇◇◇ 初期表示 ◇◇◇
@@ -59,6 +60,14 @@ radioRectDom.onchange = () => {
 };
 radioCircleDom.onchange = () => {
     shape = "circle";
+    drawFractal();
+};
+checkStrokeDom.onchange = () => {
+    isStroke = !isStroke;
+    drawFractal();
+};
+checkFillDom.onchange = () => {
+    isFill = !isFill;
     drawFractal();
 };
 

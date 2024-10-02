@@ -133,6 +133,9 @@ function calcAverage(imageData, block, originalPixelCount) {
                 data[i + 1] = 255;
                 data[i + 2] = 255;
             }
+            if (data[i + 3] !== 255) {
+                data[i + 3] = 255;
+            }
             totalR += data[i + 0];
             totalG += data[i + 1];
             totalB += data[i + 2];

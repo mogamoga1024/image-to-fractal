@@ -7,8 +7,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div>
-    <input type="file" id="input-file">
+  <div id="option-container">
+    <div>
+      <input type="file" id="input-file">
+    </div>
+    <div>
+      <label>
+        <input id="radio-rect" type="radio" name="shape" value="rect" selected="true">
+        四角
+      </label>
+      <label>
+        <input id="radio-circle" type="radio" name="shape" value="circle">
+        円
+      </label>
+    </div>
   </div>
   <canvas id="result"></canvas>
 

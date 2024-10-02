@@ -1,7 +1,37 @@
 
+// ◇◇◇ DOM ◇◇◇
+
 const inputFileDom = document.querySelector("#input-file");
+const radioRectDom = document.querySelector("#radio-rect");
+const radioCircleDom = document.querySelector("#radio-circle");
 const resultCanvas = document.querySelector("#result");
 const resultContext = resultCanvas.getContext("2d");
+
+radioRectDom.checked = true;
+
+// ◇◇◇ 変数 ◇◇◇
+
+let image = null;
+let count = 500;
+let isStroke = true;
+// let isStroke = false;
+let isFill = true;
+// let isFill = false;
+let shape = "rect";
+// let shape = "circle";
+let opacity = 1;
+
+// ◇◇◇ 初期表示 ◇◇◇
+
+{
+    image = new Image();
+    image.src = "Lenna.png";
+    image.onload = () => {
+        drawFractal();
+    };
+}
+
+// ◇◇◇ イベント ◇◇◇
 
 inputFileDom.onchange = e => {
     const imageFile = e.target.files[0];
@@ -11,9 +41,9 @@ inputFileDom.onchange = e => {
         return;
     }
 
-    const image = new Image();
+    image = new Image();
     image.onload = () => {
-        drawFractal(image);
+        drawFractal();
         URL.revokeObjectURL(image.src);
     };
     image.onerror = () => {
@@ -23,27 +53,18 @@ inputFileDom.onchange = e => {
     image.src = URL.createObjectURL(imageFile);
 };
 
-{
-    const image = new Image();
-    // image.src = "image/野獣先輩.png";
-    // image.src = "image/0000000000000000000000000000000000000000000000000000000000000000000.png";
-    // image.src = "image/test.png";
-    image.src = "Lenna.png";
-    image.onload = () => {
-        drawFractal(image);
-    };
-}
+radioRectDom.onchange = () => {
+    shape = "rect";
+    drawFractal();
+};
+radioCircleDom.onchange = () => {
+    shape = "circle";
+    drawFractal();
+};
 
-function drawFractal(image) {
-    let count = 500;
-    let isStroke = true;
-    // let isStroke = false;
-    let isFill = true;
-    // let isFill = false;
-    let shape = "rect";
-    // let shape = "circle";
-    let opacity = 1;
+// ◇◇◇ フラクタル画像生成処理 ◇◇◇
 
+function drawFractal() {
     const result = imageToFractal(image, shape, count, isFill, isStroke, opacity);
 
     resultCanvas.width = result.width;

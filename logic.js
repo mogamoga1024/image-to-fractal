@@ -75,6 +75,9 @@ function imageToFractal(image, shape, count, isFill, isStroke, opacity) {
         dstContext.putImageData(imageData, 0, 0);
     }
     else if (shape === "circle") {
+        // 背景を白で塗る
+        dstContext.fillStyle = "#FFFFFF";
+        dstContext.fillRect(0, 0, dstCanvas.width, dstCanvas.height);
         // 平均値で塗る
         if (isFill) for (const block of blockList) {
             drawCircle(dstContext, block, "fill", opacity);
@@ -129,9 +132,6 @@ function calcAverage(imageData, block, originalPixelCount) {
                 data[i + 0] = 255;
                 data[i + 1] = 255;
                 data[i + 2] = 255;
-            }
-            if (data[i + 3] !== 255) {
-                data[i + 3] = 255;
             }
             totalR += data[i + 0];
             totalG += data[i + 1];

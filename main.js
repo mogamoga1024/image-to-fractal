@@ -35,7 +35,7 @@ inputFileDom.onchange = e => {
 }
 
 function drawFractal(image) {
-    let count = 3000;
+    let count = 100;
     // let isStroke = true;
     let isStroke = false;
     let isFill = true;

@@ -1,5 +1,5 @@
 
-function imageToFractal(image, shape, count, isFill, isStroke) {
+function imageToFractal(image, shape, count, isFill, isStroke, opacity) {
     const srcCanvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
     const srcContext = srcCanvas.getContext("2d");
     srcContext.drawImage(image, 0, 0);
@@ -52,7 +52,7 @@ function imageToFractal(image, shape, count, isFill, isStroke) {
     if (shape === "rect") {
         // 平均値で塗る
         for (const block of blockList) {
-            drawBlock(imageData, block, isStroke, isFill);
+            drawBlock(imageData, block, isStroke, isFill, opacity);
         }
 
         if (isStroke) {
@@ -77,7 +77,7 @@ function imageToFractal(image, shape, count, isFill, isStroke) {
     else if (shape === "circle") {
         // 平均値で塗る
         if (isFill) for (const block of blockList) {
-            drawCircle(dstContext, block, "fill");
+            drawCircle(dstContext, block, "fill", opacity);
         }
         if (isStroke) for (const block of blockList) {
             drawCircle(dstContext, block, "stroke");
@@ -154,7 +154,7 @@ function calcAverage(imageData, block, originalPixelCount) {
     block.roughness = (roughnessSum / colorList.length) * (pixelCount / originalPixelCount);
 }
 
-function drawBlock(imageData, block, isStroke, isFill) {
+function drawBlock(imageData, block, isStroke, isFill, opacity) {
     const data = imageData.data;
     const imageWidth = imageData.width;
     const startX = block.startX;
@@ -174,6 +174,7 @@ function drawBlock(imageData, block, isStroke, isFill) {
                 data[i + 0] = block.r;
                 data[i + 1] = block.g;
                 data[i + 2] = block.b;
+                data[i + 3] = Math.floor(255 * opacity);
             }
             else {
                 data[i + 0] = 255;
@@ -184,7 +185,7 @@ function drawBlock(imageData, block, isStroke, isFill) {
     }
 }
 
-function drawCircle(context, block, type) {
+function drawCircle(context, block, type, opacity) {
     const startX = block.startX;
     const startY = block.startY;
 
@@ -201,7 +202,7 @@ function drawCircle(context, block, type) {
         context.stroke();
     }
     else if (type === "fill") {
-        context.fillStyle = `rgba(${block.r}, ${block.g}, ${block.b}, 0.99)`;
+        context.fillStyle = `rgba(${block.r}, ${block.g}, ${block.b}, ${opacity})`;
         context.fill();
     }
 }

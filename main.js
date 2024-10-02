@@ -36,13 +36,14 @@ inputFileDom.onchange = e => {
 
 function drawFractal(image) {
     let count = 300;
-    // let isStroke = true;
-    let isStroke = false;
+    let isStroke = true;
+    // let isStroke = false;
     let isFill = true;
     // let shape = "rect";
     let shape = "circle";
+    let opacity = 0.5;
 
-    const result = imageToFractal(image, shape, count, isFill, isStroke);
+    const result = imageToFractal(image, shape, count, isFill, isStroke, opacity);
 
     resultCanvas.width = result.width;
     resultCanvas.height = result.height;

@@ -20,4 +20,5 @@ label {
 
 canvas {
   margin-top: 8px;
+  max-width: 100%;
 }

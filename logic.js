@@ -31,6 +31,9 @@ function imageToFractal(dstCanvas, image, shape, count, isFill, isStroke, opacit
                     roughBlock = block;
                 }
             }
+            if (roughBlock.roughness <= 0) {
+                break;
+            }
         }
         
         // 粗いブロックを分割する
@@ -145,9 +148,9 @@ function calcAverage(imageData, block, originalPixelCount) {
             });
         }
     }
-    block.r = totalR / pixelCount;
-    block.g = totalG / pixelCount;
-    block.b = totalB / pixelCount;
+    block.r = Math.round(totalR / pixelCount);
+    block.g = Math.round(totalG / pixelCount);
+    block.b = Math.round(totalB / pixelCount);
 
     let roughnessSum = 0;
     for (const {r, g, b} of colorList) {
